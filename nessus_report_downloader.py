@@ -26,7 +26,7 @@ import time
 from datetime import datetime
 
 try:
-    from prettytable import PrettyTable1
+    from prettytable import PrettyTable
 except ImportError:
     print "[-] Unable to load PrettyTable library, will print data in generic format"
     HAS_PRETTYTABLE = False
