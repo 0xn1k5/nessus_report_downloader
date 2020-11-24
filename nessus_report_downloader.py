@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 ########################################################################################################
 # Name: Nessus Report downloader
 # Author: Nikhil Raj ( nikhilraj149@gmail.com )
 #
-# Version: 1.0
-# Last Updated: 13 Aug 2017
+# Version: 1.1
+# Last Updated: 24 Nov 2020
 #
 # Description:  A python script for automating the download of nessus reports in multiple formats.
 #
@@ -28,7 +28,7 @@ from datetime import datetime
 try:
     from prettytable import PrettyTable
 except ImportError:
-    print "[-] Unable to load PrettyTable library, will print data in generic format"
+    print("[-] Unable to load PrettyTable library, will print data in generic format")
     HAS_PRETTYTABLE = False
 else:
     HAS_PRETTYTABLE = True
@@ -42,9 +42,10 @@ SLEEP_TIME=1.0
 def sendGetRequest(url, headers):
     try:
         r = requests.get(url, verify=False, headers=headers)
+        # print("Connecting to " + url + " " + str(headers) + " HTTP Code: " + str(r.status_code))
         return r
     except requests.exceptions.ConnectionError:
-        print "[-] Failed to establish connection"
+        print("[-] Failed to establish connection")
         exit(-1)
 
 
@@ -54,7 +55,7 @@ def sendPostRequest(url, json_data={}, headers={}):
         r = requests.post(url, verify=False, headers=headers, json=json_data)
         return r
     except requests.exceptions.ConnectionError:
-        print "[-] Failed to establish connection"
+        print("[-] Failed to establish connection")
         exit(-1)
 
 # Send HTTP DELETE request
@@ -63,19 +64,19 @@ def sendDeleteRequest(url, json_data={}, headers={}):
         r = requests.delete(url, verify=False, headers=headers, json=json_data)
         return r
     except requests.exceptions.ConnectionError:
-        print "[-] Failed to establish connection"
+        print("[-] Failed to establish connection")
         exit(-1)
 
 # Print message on stdout
 def printMessage(msg, flag=1):
     if flag == 1:
-        print "[+] " + msg
+        print("[+] " + msg)
     elif flag == 0:
-        print "[-] " + msg
+        print("[-] " + msg)
     elif flag == 2:
-        print "[*] " + msg
+        print("[*] " + msg)
     else:
-        print msg
+        print(msg)
 
 
 # Check response code for an HTTP Response and print req message
@@ -100,7 +101,7 @@ def printTable(data, table_headers):
             else:
                 l.append(str(row[header]))
         tab.add_row(l)
-    print tab
+    print(tab)
 
 
 def printScanData(scan_data):
@@ -113,13 +114,13 @@ def printScanData(scan_data):
         printTable(scan_data["scans"], ["id", "name", "folder_id", "status", "creation_date", "last_modification_date"])
     else:
         # print scan header
-        print '\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("Scan Id", "Folder Name (id)", "Scan status","Scan Name","creation_date", "last_modification_date")
-        print '\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("-------", "---------------", "------------", "-----------------","-------------------", "--------------------")
+        print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("Scan Id", "Folder Name (id)", "Scan status","Scan Name","creation_date", "last_modification_date"))
+        print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("-------", "---------------", "------------", "-----------------","-------------------", "--------------------"))
         for scan in scan_data["scans"]:
-            print '\t %-10s  %-20s  %-20s  %-40s %-20s %-20s' %(str(scan["id"]),folder_info[scan["folder_id"]] + ' (' + str(
-                scan["folder_id"]) + ') ', scan["status"], scan["name"],datetime.fromtimestamp(int(scan["creation_date"])).strftime('%Y-%m-%d %H:%M:%S'),datetime.fromtimestamp(int(scan["last_modification_date"])).strftime('%Y-%m-%d %H:%M:%S'))
+            print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s' %(str(scan["id"]),folder_info[scan["folder_id"]] + ' (' + str(
+                scan["folder_id"]) + ') ', scan["status"], scan["name"],datetime.fromtimestamp(int(scan["creation_date"])).strftime('%Y-%m-%d %H:%M:%S'),datetime.fromtimestamp(int(scan["last_modification_date"])).strftime('%Y-%m-%d %H:%M:%S')))
 
-        print '\n'
+        print('\n')
 
 # Verify user specified folder Id
 def verifyScanId(scan_data, ui_scan_id):
@@ -227,7 +228,7 @@ def downloadNessusReport(base_url, token, scan_id_list, json_user_data):
             resp2 = sendGetRequest(url, headers=token_header)
 
         # If nessus report is ready for download, then write the response in external file
-        url= base_url + "/scans/exports/{0}/download".format(str(file_token["token"]))
+        url= base_url + "/tokens/{0}/download".format(str(file_token["token"]))
         if json.loads(resp2.text)["status"] == "ready":
             printMessage("Download link is available now", 1)
             resp3 = sendGetRequest(url,headers=token_header)
@@ -292,7 +293,7 @@ def main():
         resp = sendPostRequest(base_url + "/session", creds)
         if checkStatus(resp, "Login successful", "Invalid Login credentials"):
             token = json.loads(resp.text)
-            # print token["token"]
+            # print(token["token"])
 
             # Fetching nessus scan report list
             resp = sendGetRequest(base_url + "/scans", headers={'X-Cookie': 'token=' + token['token']})
