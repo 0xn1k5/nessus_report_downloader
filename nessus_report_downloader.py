@@ -22,6 +22,7 @@
 import argparse
 import json
 import logging
+import os
 import time
 from datetime import datetime
 
@@ -30,7 +31,7 @@ import requests
 try:
     from prettytable import PrettyTable
 except ImportError:
-    print("[-] Unable to load PrettyTable library, will print data in generic format")
+    logging.warning("Unable to load PrettyTable library, will print data in generic format")
     HAS_PRETTYTABLE = False
 else:
     HAS_PRETTYTABLE = True
@@ -218,9 +219,10 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
         resp = sendGetRequest(url, headers=token_header)
         info = json.loads(resp.text)
         name = info["info"]["name"]
+        filename = name + ".nessus"
         after = time.time() - int(modified_after) * 3600 * 24
         last = 0
-        if "history" in info:
+        if "history" in info and info["history"]:
             for h in info["history"]:
                 if h["status"] != "completed":
                     continue
@@ -236,6 +238,13 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
 
         logging.warning(
             "Found scan {0}/{1} result from day {2}".format(name, str(scan_id), datetime.fromtimestamp(lastdate)))
+
+        if os.path.exists(filename):
+            st = os.stat(filename)
+            if st.st_mtime>=lastdate:
+                logging.warning("Report %s already downloaded (newer than scan date)" % filename)
+                return False
+
         # Initiate download request for given scan id
         url = base_url + "/scans/{0}/export?history_id={1}".format(str(scan_id), str(last))
         resp = sendPostRequest(url, json_data=json_user_data, headers=token_header)
@@ -258,7 +267,6 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
 
             if checkStatus(resp3, "Started downloading the nessus report",
                            "Unable to download scan: " + str(scan_id)):
-                filename = name.strip() + ".nessus"
                 try:
                     nessus_file = open(filename, "w")
                     nessus_file.write(resp3.text)
@@ -313,7 +321,7 @@ def main():
     # Login credentials
     creds = {'username': args.user, 'password': args.passwd}
 
-    if args.d:
+    if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
     # Checking connection to nessus server
