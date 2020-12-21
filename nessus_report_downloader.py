@@ -211,7 +211,7 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
     for scan_id in scan_id_list:
 
         logging.debug("Format: {0} | Chapter: {1}".format(json_user_data["format"], json_user_data["chapters"]))
-        logging.warning("Initiating download request for scan id: " + str(scan_id))
+        logging.debug("Getting info about scan id: " + str(scan_id))
 
         token_header = {'X-Cookie': 'token=' + token['token']}
 
@@ -231,10 +231,10 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
                     lastdate = h["creation_date"]
             if last == 0:
                 logging.warning("No report %s/%s within specified timerange!" % (name, scan_id))
-                return False
+                continue
         else:
-            logging.error("No history available for scan %s/%s!" % (name, scan_id))
-            return False
+            logging.warning("No history available for scan %s/%s!" % (name, scan_id))
+            continue
 
         logging.warning(
             "Found scan {0}/{1} result from day {2}".format(name, str(scan_id), datetime.fromtimestamp(lastdate)))
@@ -243,9 +243,10 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
             st = os.stat(filename)
             if st.st_mtime>=lastdate:
                 logging.warning("Report %s already downloaded (newer than scan date)" % filename)
-                return False
+                continue
 
         # Initiate download request for given scan id
+        logging.warning("Initiating scan %s export" % filename)
         url = base_url + "/scans/{0}/export?history_id={1}".format(str(scan_id), str(last))
         resp = sendPostRequest(url, json_data=json_user_data, headers=token_header)
         file_token = json.loads(resp.text)
