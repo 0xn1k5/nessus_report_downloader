@@ -281,7 +281,7 @@ def downloadNessusReport(base_url, token, scan_id_list, modified_after, json_use
                     nessus_file = open(filename, "wb")
                     nessus_file.write(resp3.content)
                     nessus_file.close()
-                    logging.warning("Report was saved in " % filename)
+                    logging.warning("Report was saved in %s" % filename)
 
 
 def main():
