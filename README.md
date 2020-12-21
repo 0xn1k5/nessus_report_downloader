@@ -5,9 +5,9 @@
 
  **Author** : **Nikhil Raj ( nikhilraj149@gmail.com )**
 
- **Version: 1.0**
+ **Version: 1.1**
  
- **Last Updated** : 13 Aug 2017
+ **Last Updated** : 21 Dec 2020
 
  **Description**:  
  
@@ -16,41 +16,42 @@
  **Usage**:
  
  1) Display help
+```
+$ usage: python nessus_report_downloader.py -i <127.0.0.1> -u <nessus_user> -p <nessus_pass> [OPTIONS]... 
 
-    $ python nessus_report_downloader.py -h 
-    
-    Output:
-    
-        usage: python nessus_report_downloader.py -i <127.0.0.1> -u <nessus_user> -p <nessus_pass> [OPTIONS]... 
-    
-        A python script for automating the report download from nessus server
-        
-        optional arguments:
-          -h, --help            show this help message and exit
-          -i SERVER, --server SERVER
-                                IP[:PORT] of nessus server
-          -u USER, --user USER  username of nessus server
-          -p PASSWD, --passwd PASSWD
-                                password of nessus server
-          -s SCAN_ID, --scan-id SCAN_ID
-                                use comma separated list of scan id(s) or 'all'
-          -d FOLDER_ID, --folder-id FOLDER_ID
-                                use comma separated list of folder id(s)
-          -f FORMAT, --format FORMAT
-                                use comma separated list of report format; [0]-nessus
-                                (Default), [1]-pdf, [2]-html, [3]-csv, [4]-nessus-db
-          -c CHAPTER, --chapter CHAPTER
-                                use comma separated list of chapters;
-                                [0]-vuln_hosts_summary, [1]-vuln_by_host (Default),
-                                [2]-vuln_by_plugin, [3]-compliance_exec,
-                                [4]-compliance, [5]-remediations
-          --db-pass DB_PASS     password for encrypting nessus-db file(s), if none
-                                specified use 'nessus'
-        
-        Report bugs at nikhilraj149@gmail.com
+A python script for automating the report download from nessus server
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i SERVER, --server SERVER
+                        IP[:PORT] of nessus server
+  -u USER, --user USER  username of nessus server
+  -p PASSWD, --passwd PASSWD
+                        password of nessus server
+  -s SCAN_ID, --scan-id SCAN_ID
+                        use comma separated list of scan id(s) or 'all'
+  -d FOLDER_ID, --folder-id FOLDER_ID
+                        use comma separated list of folder id(s)
+  -D DEBUG, --debug DEBUG
+                        enable debugging
+  -m MODIFIED_AFTER, --modified-after MODIFIED_AFTER
+                        download only scans modified after x days in history
+  -f FORMAT, --format FORMAT
+                        use comma separated list of report format; [0]-nessus
+                        (Default), [1]-pdf, [2]-html, [3]-csv, [4]-nessus-db
+  -c CHAPTER, --chapter CHAPTER
+                        use comma separated list of chapters;
+                        [0]-vuln_hosts_summary, [1]-vuln_by_host (Default),
+                        [2]-vuln_by_plugin, [3]-compliance_exec,
+                        [4]-compliance, [5]-remediations
+  --db-pass DB_PASS     password for encrypting nessus-db file(s), if none
+                        specified use 'nessus'
+
+Report bugs at nikhilraj149@gmail.com
+```
     
  2) Display nessus scan summary table having scan_id, name and folder_id
-
+```
     $ python nessus_report_downloader.py -i <nessus_server_ip> -u <nessus_user> -p <nessus_passwd>
     
     $ python nessus_report_downloader.py -i 127.0.0.1 -u nessus -p pass@123
@@ -66,12 +67,11 @@
         | 14 |    Win7 Test -Post Wnycry    |     3     | completed | 2017-07-23 18:40:30 |  2017-07-23 18:40:46   |
         | 11 |          Win7 Test           |     3     | completed | 2017-07-23 13:35:18 |  2017-07-23 13:35:36   |
         +----+------------------------------+-----------+-----------+---------------------+------------------------+
-
+```
 
     
  3) Download nessus report (Optional parameter description):
 
-    
     Scan Id (-s):
     
         - List of comma seperated scan id for download 
