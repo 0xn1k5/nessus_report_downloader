@@ -4,8 +4,8 @@
 # Name: Nessus Report downloader
 # Author: Nikhil Raj ( nikhilraj149@gmail.com )
 #
-# Version: 1.1
-# Last Updated: 24 Nov 2020
+# Version: 1.2
+# Last Updated: 2 June 2021
 #
 # Description:  A python script for automating the download of nessus reports in multiple formats.
 #
