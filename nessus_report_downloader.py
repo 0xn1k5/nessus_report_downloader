@@ -281,8 +281,8 @@ def makingNewColumn(scan_data, scan_id, name_file):
 
     #print(new_column)
     df = pd.read_csv(name_file)
-    df["scan_name"] = new_column["scan_name"]
-    df["folder_name"] = new_column["folder_name"]
+    df["site"] = new_column["scan_name"]
+    df["session"] = new_column["folder_name"]
     df.to_csv(name_file, index = False)
 
 
