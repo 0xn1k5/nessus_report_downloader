@@ -261,8 +261,10 @@ def downloadNessusReport(base_url, token, scan_id_list, scan_data, json_user_dat
                     printMessage("Report was saved in " + filename2, 1)
                     name_file = filename2
                     printMessage("\n", 99)
-
-        makingNewColumn(scan_data, scan_id, name_file) 
+        
+        #make site and session column for csv report
+        if json_user_data["format"] == "csv":
+            makingNewColumn(scan_data, scan_id, name_file) 
 
     
 
