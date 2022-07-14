@@ -2,12 +2,13 @@
 
 ########################################################################################################
 # Name: Nessus Report downloader
-# Author: Nikhil Raj ( nikhilraj149@gmail.com )
+# Author: Nikhil Raj( nikhilraj149@gmail.com ) and BLSOPS (github.com/blacklanternsecurity)
 #
-# Version: 1.0
-# Last Updated: 13 Aug 2017
+# Version: 2
+# Last Updated: 14 July 2022
 #
-# Description:  A python script for automating the download of nessus reports in multiple formats.
+# Description:  A python script for automating the download of nessus reports in multiple formats. This has been updated by BLSOPS to work in Python3 becuase we
+#               aren't fucking savages.
 #
 # Usage: 	$ python nessus_report_downloader.py -i <nessus_server_ip> -u <nessus_user> -p <nessus_passwd>
 #
@@ -16,7 +17,8 @@
 #
 #		1) Requests - Required for sending HTTP requests
 #		2) PrettyTable (Optional) - for formatting data in tabular fashion on terminal
-#
+#       
+# 
 #########################################################################################################
 
 import requests
@@ -28,7 +30,7 @@ from datetime import datetime
 try:
     from prettytable import PrettyTable
 except ImportError:
-    print "[-] Unable to load PrettyTable library, will print data in generic format"
+    print("[-] Unable to load PrettyTable library, will print data in generic format")
     HAS_PRETTYTABLE = False
 else:
     HAS_PRETTYTABLE = True
@@ -44,7 +46,7 @@ def sendGetRequest(url, headers):
         r = requests.get(url, verify=False, headers=headers)
         return r
     except requests.exceptions.ConnectionError:
-        print "[-] Failed to establish connection"
+        print("[-] Failed to establish connection")
         exit(-1)
 
 
@@ -54,7 +56,7 @@ def sendPostRequest(url, json_data={}, headers={}):
         r = requests.post(url, verify=False, headers=headers, json=json_data)
         return r
     except requests.exceptions.ConnectionError:
-        print "[-] Failed to establish connection"
+        print("[-] Failed to establish connection")
         exit(-1)
 
 # Send HTTP DELETE request
@@ -63,19 +65,19 @@ def sendDeleteRequest(url, json_data={}, headers={}):
         r = requests.delete(url, verify=False, headers=headers, json=json_data)
         return r
     except requests.exceptions.ConnectionError:
-        print "[-] Failed to establish connection"
+        print("[-] Failed to establish connection")
         exit(-1)
 
 # Print message on stdout
 def printMessage(msg, flag=1):
     if flag == 1:
-        print "[+] " + msg
+        print("[+] " + msg)
     elif flag == 0:
-        print "[-] " + msg
+        print("[-] " + msg)
     elif flag == 2:
-        print "[*] " + msg
+        print("[*] " + msg)
     else:
-        print msg
+        print(msg)
 
 
 # Check response code for an HTTP Response and print req message
@@ -100,7 +102,7 @@ def printTable(data, table_headers):
             else:
                 l.append(str(row[header]))
         tab.add_row(l)
-    print tab
+    print(tab)
 
 
 def printScanData(scan_data):
@@ -113,13 +115,13 @@ def printScanData(scan_data):
         printTable(scan_data["scans"], ["id", "name", "folder_id", "status", "creation_date", "last_modification_date"])
     else:
         # print scan header
-        print '\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("Scan Id", "Folder Name (id)", "Scan status","Scan Name","creation_date", "last_modification_date")
-        print '\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("-------", "---------------", "------------", "-----------------","-------------------", "--------------------")
+        print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("Scan Id", "Folder Name (id)", "Scan status","Scan Name","creation_date", "last_modification_date"))
+        print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("-------", "---------------", "------------", "-----------------","-------------------", "--------------------"))
         for scan in scan_data["scans"]:
-            print '\t %-10s  %-20s  %-20s  %-40s %-20s %-20s' %(str(scan["id"]),folder_info[scan["folder_id"]] + ' (' + str(
-                scan["folder_id"]) + ') ', scan["status"], scan["name"],datetime.fromtimestamp(int(scan["creation_date"])).strftime('%Y-%m-%d %H:%M:%S'),datetime.fromtimestamp(int(scan["last_modification_date"])).strftime('%Y-%m-%d %H:%M:%S'))
+            print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s' %(str(scan["id"]),folder_info[scan["folder_id"]] + ' (' + str(
+                scan["folder_id"]) + ') ', scan["status"], scan["name"],datetime.fromtimestamp(int(scan["creation_date"])).strftime('%Y-%m-%d %H:%M:%S'),datetime.fromtimestamp(int(scan["last_modification_date"])).strftime('%Y-%m-%d %H:%M:%S')))
 
-        print '\n'
+        print('\n')
 
 # Verify user specified folder Id
 def verifyScanId(scan_data, ui_scan_id):
