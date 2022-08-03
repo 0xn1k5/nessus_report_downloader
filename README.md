@@ -3,7 +3,7 @@
 
  **Name** : **Nessus Report downloader**
 
- **Author** : **Nikhil Raj ( Twitter: 0xn1k5 | Mail: nikhilraj149[@]gmail.com )**
+ **Author** : **Nikhil Raj ( Twitter: 0xn1k5 | Mail: nikhilraj149[at]gmail.com )**
 
  **Version: 1.0**
  
