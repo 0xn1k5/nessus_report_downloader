@@ -4,8 +4,8 @@
 # Name: Nessus Report downloader
 # Author: Nikhil Raj ( nikhilraj149@gmail.com )
 #
-# Version: 1.1
-# Last Updated: 24 Nov 2020
+# Version: 1.2
+# Last Updated: 2 June 2021
 #
 # Description:  A python script for automating the download of nessus reports in multiple formats.
 #
@@ -23,6 +23,7 @@ import requests
 import json
 import argparse
 import time
+import pandas as pd
 from datetime import datetime
 
 try:
@@ -112,6 +113,8 @@ def printScanData(scan_data):
 
     if HAS_PRETTYTABLE:
         printTable(scan_data["scans"], ["id", "name", "folder_id", "status", "creation_date", "last_modification_date"])
+        #print(scan_data)
+        #print(folder_info)
     else:
         # print scan header
         print('\t %-10s  %-20s  %-20s  %-40s %-20s %-20s'  %("Scan Id", "Folder Name (id)", "Scan status","Scan Name","creation_date", "last_modification_date"))
@@ -139,6 +142,7 @@ def verifyScanId(scan_data, ui_scan_id):
         else:
             printMessage("Omitting invalid Scan ID: " + scan, 0)
 
+    #print (valid_scan_list)
     return valid_scan_list
 
 
@@ -206,7 +210,9 @@ def getFormatAndChapterList(nessus_format_list, chapter_list, db_pass):
 
     return data
 
-def downloadNessusReport(base_url, token, scan_id_list, json_user_data):
+def downloadNessusReport(base_url, token, scan_id_list, scan_data, json_user_data):
+    name_file = "hehe"
+    
     for scan_id in scan_id_list:
 
         printMessage("Format: {0} | Chapter: {1}".format(json_user_data["format"], json_user_data["chapters"]))
@@ -236,11 +242,13 @@ def downloadNessusReport(base_url, token, scan_id_list, json_user_data):
             if checkStatus(resp3, "Started downloading the nessus report",
                            "Unable to download scan: " + str(scan_id)):
                 filename = resp3.headers["Content-Disposition"].split('"')[1]
+                #print(resp3.text)
                 try:
                     nessus_file = open(filename, "w")
                     nessus_file.write(resp3.text)
                     nessus_file.close()
                     printMessage("Report was saved in " + filename, 1)
+                    name_file = filename
                     printMessage("\n", 99)
                 except IOError:
                     printMessage("Error occurred while writing to file : " + filename, 0)
@@ -251,7 +259,33 @@ def downloadNessusReport(base_url, token, scan_id_list, json_user_data):
                     nessus_file.write(resp3.content)
                     nessus_file.close()
                     printMessage("Report was saved in " + filename2, 1)
+                    name_file = filename2
                     printMessage("\n", 99)
+        
+        #make site and session column for csv report
+        if json_user_data["format"] == "csv":
+            makingNewColumn(scan_data, scan_id, name_file) 
+
+    
+
+def makingNewColumn(scan_data, scan_id, name_file):
+    new_column = dict()
+
+    for scan in scan_data["scans"]:
+        #print(scan["id"])
+        if scan["id"] == int(scan_id):
+            new_column["scan_name"] = scan["name"]
+            new_column["folder_id"] = scan["folder_id"]
+        
+    for folder in scan_data["folders"]:
+        if folder["id"] == new_column["folder_id"]:
+            new_column["folder_name"] = folder["name"]
+
+    #print(new_column)
+    df = pd.read_csv(name_file)
+    df["site"] = new_column["scan_name"]
+    df["session"] = new_column["folder_name"]
+    df.to_csv(name_file, index = False)
 
 
 def main():
@@ -313,6 +347,7 @@ def main():
 
                     printMessage("Identified " + str(len(scan_id_list)) + " scan(s) for download\n", 2)
 
+                    #makingNewColumn(scan_data, scan_id_list)
                     # Choose default values if not supplied via std input
                     if not args.format:
                         printMessage("Missing -f option, using default [0]-nessus format\n",0)
@@ -324,7 +359,7 @@ def main():
                     # Create a list of format and chapters for report creation
                     format_specification = getFormatAndChapterList(args.format, args.chapter, args.db_pass)
                     for report_format in format_specification:
-                        downloadNessusReport(base_url, token, scan_id_list, json_user_data=report_format)
+                        downloadNessusReport(base_url, token, scan_id_list, scan_data, json_user_data=report_format)
 
             # Logout
             resp = sendDeleteRequest(base_url+"/session",headers={'X-Cookie': 'token=' + token['token']})
